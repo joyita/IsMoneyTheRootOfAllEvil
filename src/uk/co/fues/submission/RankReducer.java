@@ -30,7 +30,7 @@ public class RankReducer extends MapReduceBase
 	String retval = "";
 	for(int i=0;i<7;i++) {
 		init[i] = new DoubleWritable(sinScores[i]/total);
-		retval=retval+(Double.valueOf(valueFormat.format(sinScores[i]/total))+ ", ");
+		retval=retval+(Double.valueOf(valueFormat.format(sinScores[i]/total))+ ",");
 	}	
 	out.collect(key, new Text(retval));
   }

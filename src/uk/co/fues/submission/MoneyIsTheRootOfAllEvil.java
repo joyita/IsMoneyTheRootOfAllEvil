@@ -70,8 +70,8 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
       configFile = args[1];
 
     // For this example, only look at a single text file.
-    //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-*";
-    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-01666";
+    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-0035*";
+    //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-01666";
  
     // Switch to this if you'd like to look at all text files.  May take many minutes just to read the file listing.
   //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/*/textData-*";
@@ -132,8 +132,8 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
   public static void main(String[] args)
       throws Exception {
 	  Configuration conf = new Configuration();
-	  conf.set("fs.s3n.awsAccessKeyId", "AKIAJ6ELIFZL2DJ2HQGQ");
-	  conf.set("fs.s3n.awsSecretAccessKey", "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");
+	  conf.set("fs.s3n.awsAccessKeyId", "*********");
+	  conf.set("fs.s3n.awsSecretAccessKey", "************");
 	  int res = ToolRunner.run(conf, new MoneyIsTheRootOfAllEvil(), args);
 	  System.exit(res);
   }
