@@ -1,4 +1,4 @@
-package uk.co.fues.submission;
+package uk.co.fues.submission.reducer;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -11,6 +11,8 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+
+import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 
 public class RankReducer extends MapReduceBase
   implements Reducer<DoubleWritable, DoubleArrayWritable, DoubleWritable, Text> {

@@ -1,4 +1,4 @@
-package uk.co.fues.submission;
+package uk.co.fues.submission.util.datastructure;
 
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.DoubleWritable;
