@@ -26,6 +26,7 @@ public class WebPageParser  {
 	Logger logger = Logger.getLogger(getClass());
 
 	public String parseURL(String url) {
+		String content = "";
 		try {
 			URL _url = new URL(url);
 			InputStream input = _url.openStream();
@@ -39,25 +40,21 @@ public class WebPageParser  {
 			HtmlParser parser = new HtmlParser();
 			parser.parse(input, teeHandler, metadata, parseContext);
 
-			String content = (StringEscapeUtils.escapeHtml(textHandler.toString()));
+			content = (StringEscapeUtils.escapeHtml(textHandler.toString()));
 
 			//String untagged = toHTMLHandler.toString();
 			//String title = (metadata.get("title").replaceAll(".", "").replaceAll("/", ""));
 			
-			return content;
 
 		} catch (MalformedURLException e) {
 			logger.error(e);
-			return null;
 		} catch (IOException e) {
 			logger.error(e);
-			return null;
 		} catch (SAXException e) {
 			logger.error(e);
-			return null;
 		} catch (TikaException e) {
 			logger.error(e);
-			return null;
-		}
+		} 
+		return content;
 	}
 }

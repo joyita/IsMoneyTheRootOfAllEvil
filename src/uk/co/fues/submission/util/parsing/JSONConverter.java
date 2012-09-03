@@ -41,7 +41,7 @@ public class JSONConverter {
 					datum = datum + ",";
 				}
 				entry = entry + datum ;
-				xIncrement = xIncrement+15;
+				xIncrement = xIncrement+1;
 			}
 			json = json + entry + "]";
 			if(h!=lengthA-1) {

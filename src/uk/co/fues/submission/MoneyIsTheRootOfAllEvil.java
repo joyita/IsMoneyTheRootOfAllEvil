@@ -75,17 +75,9 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
       configFile = args[1];
 
     // For this example, only look at a single text file.
-//    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-0031*";
    
-    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_3*";
+    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/134178224755*";
     //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_735.arc.gz";
-   
-    
-    
-    //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-01666";
- 
-    // Switch to this if you'd like to look at all text files.  May take many minutes just to read the file listing.
-  //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/*/textData-*";
 
     // Read in any additional config parameters.
     if (configFile != null) {
@@ -104,7 +96,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
     FileInputFormat.setInputPathFilter(job, SampleFilter.class);
 
     // Delete the output path directory if it already exists.
-    LOG.info("clearing the output path at '" + outputPath + "'");
+    LOG.info("clearing the  output path at '" + outputPath + "'");
 
     FileSystem fs = FileSystem.get(new URI(outputPath), job);
 

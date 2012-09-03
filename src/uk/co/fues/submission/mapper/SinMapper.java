@@ -1,5 +1,6 @@
 package uk.co.fues.submission.mapper;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -18,6 +19,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import uk.co.fues.submission.MoneyIsTheRootOfAllEvil;
+import uk.co.fues.submission.classifier.MultiNomialBayes;
+import uk.co.fues.submission.trainer.parse.DataCleansing;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 import uk.co.fues.submission.vocabulary.Sins;
 import uk.co.fues.submission.vocabulary.Money;
@@ -27,6 +30,14 @@ public class SinMapper extends MapReduceBase implements
 
 	private static final Logger LOG = Logger
 			.getLogger(MoneyIsTheRootOfAllEvil.class);
+	private MultiNomialBayes classifer;
+	public SinMapper() {
+		try {
+			classifer = new MultiNomialBayes();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		};
+	}
 
     public void map(Text key, ArcRecord value, OutputCollector<DoubleWritable, DoubleArrayWritable> output, Reporter reporter)
             throws IOException {
@@ -53,15 +64,15 @@ public class SinMapper extends MapReduceBase implements
 
             Elements mf = doc.select("[itemtype~=schema.org]");			// Get the text content as a string.
 			String pageText = doc.text();
+			String cleansed = DataCleansing.clean(pageText);
+			if(!DataCleansing.include(cleansed)) {
+				return;
+			}
 
-			// Removes all punctuation.
-			pageText = pageText.replaceAll("[^a-zA-Z0-9 ]", "");
-
-			// Normalizes whitespace to single spaces.
-			pageText = pageText.replaceAll("\\s+", " ");
-
-			output.collect(new DoubleWritable((int)(getIDF(pageText, Money.MONEY.getVocab())*100)),
-					getSinVector(pageText));
+//			output.collect(new DoubleWritable((int)(getIDF(pageText, Money.MONEY.getVocab())*100)),
+//					getSinVector(pageText));
+			output.collect(getMoneyness(cleansed),
+					getClassiferSinVector(cleansed));
 		} catch (Exception ex) {
 			LOG.error("Caught Exception", ex);
 		}
@@ -81,6 +92,22 @@ public class SinMapper extends MapReduceBase implements
 		return count;
 	}
 	
+	
+	private DoubleArrayWritable getClassiferSinVector(String text) throws Exception {
+		double[] results = classifer.classifyMessage(text);
+		DoubleWritable[] init = new DoubleWritable[7];
+		for(int i = 0; i<7; i++) {
+			init[i] = new DoubleWritable(results[i]);
+		}
+		return new DoubleArrayWritable(init);
+	}
+	
+	private DoubleWritable getMoneyness(String text) throws Exception {
+		double[] results = classifer.classifyMessage(text);
+		return new DoubleWritable((int) (results[7]*100));
+	}
+	
+	@SuppressWarnings("unused")
 	private DoubleArrayWritable getSinVector(String text) {
 		DoubleWritable[] init = new DoubleWritable[7];
 		for(int i=0; i<SINS.size(); i++) {
