@@ -36,7 +36,7 @@ public class JSONConverter {
 			int xIncrement = 0;
 			int lengthB = sin.size();
 			for(int i = 0; i<lengthB; i++) {
-				String datum = "{\"x\":" + xIncrement + ",\"y\":" + sin.get(i)*80000 + ",\"colour\":\"#" + ((int) (Math.random() * 1000000)) + "\"}";
+				String datum = "{\"x\":" + xIncrement + ",\"y\":" + sin.get(i)*80000 + ",\"colour\":\"" + getSinColour(h) + "\"}";
 				if(i!=lengthB-1) {
 					datum = datum + ",";
 				}
@@ -59,5 +59,26 @@ public class JSONConverter {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private static String getSinColour(int index) {
+        String colour = "#000000";
+        switch (index) {
+            case 0:  colour = "#A60808"; //lust = red
+                     break;
+            case 1:  colour = "#0059BF"; //greed = blue
+                     break;
+            case 2:  colour = "#D10478"; //gluttoy = pink
+                     break;
+            case 3:  colour = "#318500"; //envy = green
+                     break;
+            case 4:  colour = "#701BE0"; //pride = purple
+                     break;
+            case 5:  colour = "#DB5800"; //wrath = orange
+                     break;
+            case 6: colour = "#FFDE05"; //sloth = yellow
+                     break;
+        }
+        return colour;
 	}
 }

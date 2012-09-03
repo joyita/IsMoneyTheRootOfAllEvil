@@ -6,12 +6,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
+import org.commoncrawl.hadoop.mapred.ArcRecord;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import uk.co.fues.submission.MoneyIsTheRootOfAllEvil;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
@@ -19,17 +23,36 @@ import uk.co.fues.submission.vocabulary.Sins;
 import uk.co.fues.submission.vocabulary.Money;
 
 public class SinMapper extends MapReduceBase implements
-		Mapper<Text, Text, DoubleWritable, DoubleArrayWritable> {
+		Mapper<Text, ArcRecord, DoubleWritable, DoubleArrayWritable> {
 
 	private static final Logger LOG = Logger
 			.getLogger(MoneyIsTheRootOfAllEvil.class);
 
-	public void map(Text key, Text value,
-			OutputCollector<DoubleWritable, DoubleArrayWritable> output, Reporter reporter)
-			throws IOException {
-		try {
-			// Get the text content as a string.
-			String pageText = value.toString();
+    public void map(Text key, ArcRecord value, OutputCollector<DoubleWritable, DoubleArrayWritable> output, Reporter reporter)
+            throws IOException {
+
+          try {
+
+            if (!value.getContentType().contains("html")) {
+              return;
+            }
+
+            // just curious how many of each content type we've seen
+
+            // ensure sample instances have enough memory to parse HTML
+            if (value.getContentLength() > (5 * 1024 * 1024)) {
+              return;
+            }
+
+            // Count all 'itemtype' attributes referencing 'schema.org'
+            Document doc = value.getParsedHTML();
+
+            if (doc == null) {
+              return;
+            }
+
+            Elements mf = doc.select("[itemtype~=schema.org]");			// Get the text content as a string.
+			String pageText = doc.text();
 
 			// Removes all punctuation.
 			pageText = pageText.replaceAll("[^a-zA-Z0-9 ]", "");
@@ -50,7 +73,7 @@ public class SinMapper extends MapReduceBase implements
 		for (String word : words) {
 			if(terms.contains(word)) {
 				count++;
-				System.out.println(word + " : " + text);
+				//System.out.println(word + " : " + text);
 			}
 		}
 		count=count==0?0:(count/words.length);

@@ -13,7 +13,6 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -22,6 +21,8 @@ import org.apache.log4j.Logger;
 import uk.co.fues.submission.mapper.SinMapper;
 import uk.co.fues.submission.reducer.RankReducer;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
+
+import org.commoncrawl.hadoop.mapred.ArcInputFormat;
 
 
 public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
@@ -38,7 +39,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     public boolean accept(Path path) {
 
-      if (!path.getName().startsWith("textData-"))
+        if (!path.getName().endsWith(".arc.gz"))
         return false;
 
       SampleFilter.count++;
@@ -74,7 +75,13 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
       configFile = args[1];
 
     // For this example, only look at a single text file.
-    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-0031*";
+//    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-0031*";
+   
+    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_3*";
+    //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_735.arc.gz";
+   
+    
+    
     //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690166822/textData-01666";
  
     // Switch to this if you'd like to look at all text files.  May take many minutes just to read the file listing.
@@ -110,7 +117,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
     FileOutputFormat.setCompressOutput(job, false);
 
     // Set which InputFormat class to use.
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormat(ArcInputFormat.class);
 
     // Set which OutputFormat class to use.
     job.setOutputFormat(TextOutputFormat.class);
@@ -121,7 +128,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     // Set which Mapper and Reducer classes to use.
     job.setMapperClass(SinMapper.class);
-    job.setCombinerClass(RankReducer.class);
+   // job.setCombinerClass(RankReducer.class);
     job.setReducerClass(RankReducer.class);
 
     if (JobClient.runJob(job).isSuccessful())
@@ -137,8 +144,8 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
   public static void main(String[] args)
       throws Exception {
 	  Configuration conf = new Configuration();
-	  conf.set("fs.s3n.awsAccessKeyId", "***************");
-	  conf.set("fs.s3n.awsSecretAccessKey", "***************");
+	  conf.set("fs.s3n.awsAccessKeyId", "*");
+	  conf.set("fs.s3n.awsSecretAccessKey", "*");
 	  int res = ToolRunner.run(conf, new MoneyIsTheRootOfAllEvil(), args);
 	  System.exit(res);
   }
