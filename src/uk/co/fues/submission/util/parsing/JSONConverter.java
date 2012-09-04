@@ -29,9 +29,9 @@ public class JSONConverter {
 				}
 			}
 		String json = "[";
-		int lengthA = 1;//sins.size();
+		int lengthA = sins.size();
 		for(int h = 0; h<lengthA; h++) {
-			List<Double> sin = sins.get(2);
+			List<Double> sin = sins.get(h);
 			String entry = "[";
 			int xIncrement = 0;
 			int lengthB = sin.size();

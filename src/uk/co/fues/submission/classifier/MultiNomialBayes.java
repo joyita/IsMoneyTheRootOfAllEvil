@@ -32,6 +32,7 @@ public class MultiNomialBayes {
     
     public MultiNomialBayes() throws FileNotFoundException {
         this.filter = new StringToWordVector();
+        filter.setStopwords(new File("en.txt"));
         this.classifier = new NaiveBayesMultinomialUpdateable();
         // Create vector of attributes.
         this.attributes = new FastVector(2);

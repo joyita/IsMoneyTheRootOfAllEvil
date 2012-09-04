@@ -1,5 +1,9 @@
 package uk.co.fues.submission.classifier.nlp;
 
+import java.util.Enumeration;
+import java.util.Vector;
+
+import weka.core.Option;
 import weka.core.tokenizers.Tokenizer;
 
 public class PhraseTokeniser extends Tokenizer {
@@ -33,5 +37,18 @@ public class PhraseTokeniser extends Tokenizer {
 		// TODO Auto-generated method stub
 
 	}
+
+	  public Enumeration listOptions() {
+		    Vector	result;
+		    
+		    result = new Vector();
+		    
+		    result.addElement(new Option(
+		        "\tThe delimiters to use\n"
+			+ "\t(default ' \\r\\n\\t.,;:'\"()?!').",
+		        "delimiters", 1, "-delimiters <value>"));
+		    
+		    return result.elements();
+		  }
 
 }
