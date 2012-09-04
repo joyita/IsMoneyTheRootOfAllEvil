@@ -104,7 +104,7 @@ public class SinMapper extends MapReduceBase implements
 	
 	private DoubleWritable getMoneyness(String text) throws Exception {
 		double[] results = classifer.classifyMessage(text);
-		return new DoubleWritable((int) (results[7]*100));
+		return new DoubleWritable((int) (results[7]*10));
 	}
 	
 	@SuppressWarnings("unused")

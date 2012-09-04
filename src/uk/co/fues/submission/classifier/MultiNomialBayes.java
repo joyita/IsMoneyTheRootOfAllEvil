@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import uk.co.fues.submission.classifier.nlp.PhraseTokeniser;
 import uk.co.fues.submission.util.constants.Directories;
 import uk.co.fues.submission.vocabulary.Sins;
 import weka.classifiers.Classifier;
@@ -33,6 +34,7 @@ public class MultiNomialBayes {
     public MultiNomialBayes() throws FileNotFoundException {
         this.filter = new StringToWordVector();
         filter.setStopwords(new File("en.txt"));
+        filter.setTokenizer(new PhraseTokeniser());
         this.classifier = new NaiveBayesMultinomialUpdateable();
         // Create vector of attributes.
         this.attributes = new FastVector(2);
