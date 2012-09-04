@@ -18,7 +18,12 @@ public class GoogleAPI extends JSONApi implements TagAPI {
 		
 		String call = "https://www.googleapis.com/customsearch/v1?\n" + 
 				"key=AIzaSyBwvGX_aInnPhITMD4X3E63lgyYXgWZKTQ&cx=013036536707430787589:_pqjad5hr1a&q=" + tag + "&alt=json";
-		String json = getJSON(call);
+		String address = "/v2/json/tag/" + tag + "?count=1000";
+		String username = "jihnd";
+		String password = "krishna";
+
+		String json = getJSON(call, address, username, password);
+
         getResult(json, "$..u", urls);
 		
 	}

@@ -11,11 +11,11 @@ import java.util.Set;
 public class DataCleansing {
 
 	public static String clean(String text) {
-		return removeSingleSentanceSequences(removeRepeatedSentances(text));
+		return trimShortSentanceSequences(removeRepeatedSentances(text));
 	}
 	
 	public static boolean include(String text) {
-		if(text.split(" ").length>300) {
+		if(text.split(" ").length>500) {
 			return true;
 		}
 		return false;
@@ -36,21 +36,22 @@ public class DataCleansing {
 		return ret;
 	}
 	
-	private static String removeSingleSentanceSequences(Set<String> text) {
-		// get single sentances in a row, likely to be menu items
+	private static String trimShortSentanceSequences(Set<String> paragraphs) {
 		List<String> sens = new ArrayList<String>();
 		List<Integer> counts = new ArrayList<Integer>();
 		int cachecount = 0;
-		for(String sentances:text) {
+		for(String sentances:paragraphs) {
 			counts.add(sentances.split(" ").length);
-			sens.add(sentances); //just making efficient use of iteration to build list
+			sens.add(sentances); 
 		}
 		List<String> killindex = new ArrayList<String>();
 		for(int i = 0; i<counts.size(); i++) {
 			Integer in = counts.get(i);
-			if(in<15) {
+			// arbitary decision, 15 words = short parapgraph.
+			if(in<30) {
 				cachecount++;
 			}
+			// 3 short sentances in a row.
 			if(cachecount>2) {
 				killindex.add(sens.get(i));
 				killindex.add(sens.get(i-1));
@@ -61,13 +62,13 @@ public class DataCleansing {
 		for(String index:killindex) {
 			sens.remove(index);
 		}
-		
+		// rebuild document
 		StringBuilder builder = new StringBuilder();
 		for(String sen:sens) {
-			builder.append(sen + "\n");
+			// "\n" was used as the paragraph splitter
+			builder.append(sen + "\n"); 
 		}
 		return builder.toString();
-		
 	}
 	
 	private static String clearWhitespace(String data) {

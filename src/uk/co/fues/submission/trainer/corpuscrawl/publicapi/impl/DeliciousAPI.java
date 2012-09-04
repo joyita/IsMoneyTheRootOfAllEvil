@@ -15,16 +15,23 @@ public class DeliciousAPI extends JSONApi implements TagAPI {
 	
 	@Override
 	public void getUrl(String tag, List<String> urls) {
-		
 		String call = "http://feeds.delicious.com/v2/json/tag/" + tag + "?count=1000";
-		String json = getJSON(call);
-        getResult(json, "$..u", urls);
+		
+		String json;
+		try {
+			json = getJSON(call);
+			if(json!=null&&!json.equalsIgnoreCase("")) {
+				getResult(json, "$..u", urls);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
 	public void getAssociatedTags() {
-		
+		// will help build vocab
 	}
-
 
 }

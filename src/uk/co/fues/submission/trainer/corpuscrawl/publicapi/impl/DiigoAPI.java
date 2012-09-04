@@ -15,8 +15,11 @@ public class DiigoAPI  extends JSONApi implements TagAPI {
 	@Override
 	public void getUrl(String tag, List<String> urls) {
 		
-		String call = "https://secure.diigo.com/api/v2/bookmarks?tags=" + tag + "&count=100";
-		String json = getJSON(call);
+		String call = "secure.diigo.com";
+		String address = "/api/v2/bookmarks?tags=" + tag + "&count=100";
+		String username = "*";
+		String password = "*";
+		String json = getJSON(call, address, username, password);
 	    getResult(json, "$..url", urls);    
 	}
 }

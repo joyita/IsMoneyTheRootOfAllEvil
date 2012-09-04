@@ -94,9 +94,15 @@ public class MultiNomialBayes {
         Instance testInstance = getInstance(message, testset);
 
         // Filter instance.
+        //filter.setInputFormat(testset);
         filter.input(testInstance);
         Instance filteredInstance = filter.output();
-        return classifier.distributionForInstance(filteredInstance);
+        double[]retval = classifier.distributionForInstance(filteredInstance);
+        for(double d:retval) {
+            System.out.print(d + "  ");        	
+        }
+        System.out.println("--");
+        return retval;
 
     }
 
