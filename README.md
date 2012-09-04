@@ -1,0 +1,1 @@
+<img src="https://dl.dropbox.com/u/2022975/site/initial_finding.jpg" height="42" width="42" />
