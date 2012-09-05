@@ -16,11 +16,14 @@ public class PhraseExtractor {
 	
 	public List<String> extractPhrases(String text) {
 		List<Parse> parses = getParseTree(getSentances(text));
-		List<String> candidateTopics = new ArrayList<String>();
+		List<String> phrases = new ArrayList<String>();
 		for (Parse parse : parses) {
-			recurseParses(parse, candidateTopics);
+			recurseParses(parse, phrases);
 		}
-		return candidateTopics;
+		for(String phrase:phrases) {
+			System.out.println(phrase);
+		}
+		return phrases;
 	}
 	
 	
@@ -42,15 +45,31 @@ public class PhraseExtractor {
 		if (parse.getChildCount() > 0) {
 			for (Parse child : parse.getChildren()) {
 					String phrase = extractNounPhrase(child);
+					if(isPhrase(child.getType())) {
 						chosenOness.add(phrase);
+					}
 				recurseParses(child, chosenOness);
 			}
 		} else {
 				String phrase = extractNounPhrase(parse);
+				if(isPhrase(parse.getType())) {
 					chosenOness.add(phrase);
+				}
 		}
 	}
 	
+	public boolean isPhrase(String tag) {
+		if(tag.equalsIgnoreCase("NP")) {
+			return true;
+		}
+		if(tag.equalsIgnoreCase("VP")) {
+			return true;
+		}
+		if(tag.equalsIgnoreCase("JJ")) {
+			return true;
+		}
+		return false;
+	}
 
 	private String extractNounPhrase(Parse child) {
 		return child.getText().substring(child.getSpan().getStart(),

@@ -17,12 +17,11 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.commoncrawl.hadoop.mapred.ArcInputFormat;
 
 import uk.co.fues.submission.mapper.SinMapper;
 import uk.co.fues.submission.reducer.RankReducer;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
-
-import org.commoncrawl.hadoop.mapred.ArcInputFormat;
 
 
 public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
@@ -76,8 +75,8 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     // For this example, only look at a single text file.
    
-    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/134178224755*";
-    //String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_735.arc.gz";
+    //String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247*";
+    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_*";
 
     // Read in any additional config parameters.
     if (configFile != null) {

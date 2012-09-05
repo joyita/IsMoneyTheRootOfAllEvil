@@ -12,14 +12,18 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -29,6 +33,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import org.slf4j.Logger;
@@ -130,9 +135,26 @@ public class JSONApi {
 	private void setParams(DefaultHttpClient httpclient) {
 		HttpParams params = new BasicHttpParams();
 		params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-		params.setParameter(ClientPNames.MAX_REDIRECTS, 0);
+		params.setParameter(ClientPNames.MAX_REDIRECTS, 1);
+		HttpClientParams.setRedirecting(params, false);
 		
 		httpclient.setParams(params);
+		httpclient.setRedirectHandler((new RedirectHandler() {
+
+			@Override
+			public java.net.URI getLocationURI(HttpResponse arg0,
+					HttpContext arg1) throws ProtocolException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean isRedirectRequested(HttpResponse arg0,
+					HttpContext arg1) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+	    }));
 	}
 
 	@SuppressWarnings("unchecked")
