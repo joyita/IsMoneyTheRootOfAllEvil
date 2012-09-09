@@ -94,16 +94,16 @@ public class SinMapper extends MapReduceBase implements
 	
 	
 	private DoubleArrayWritable getClassiferSinVector(String text) throws Exception {
-		double[] results = classifer.classifyMessage(text);
+		double[] results = classifer.classifySite(text);
 		DoubleWritable[] init = new DoubleWritable[7];
 		for(int i = 0; i<7; i++) {
-			init[i] = new DoubleWritable(results[i]);
+			init[i] = new DoubleWritable(results[i]*10); //multiply up to avoid underflow
 		}
 		return new DoubleArrayWritable(init);
 	}
 	
 	private DoubleWritable getMoneyness(String text) throws Exception {
-		double[] results = classifer.classifyMessage(text);
+		double[] results = classifer.classifySite(text);
 		return new DoubleWritable((int) (results[7]*10));
 	}
 	

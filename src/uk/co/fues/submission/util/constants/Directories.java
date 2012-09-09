@@ -3,7 +3,8 @@ package uk.co.fues.submission.util.constants;
 public enum Directories {
 
 	
-	SIN_DIRECTORY("/sins/training");
+	SIN_DIRECTORY("/sins/training/parsed"),
+	SIN_UNPARSED_DIRECTORY("/sins/training");
 	
 	String location;
 	Directories(String location) {

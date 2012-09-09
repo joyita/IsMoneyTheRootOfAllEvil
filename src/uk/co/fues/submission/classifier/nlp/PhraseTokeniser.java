@@ -1,16 +1,23 @@
 package uk.co.fues.submission.classifier.nlp;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Vector;
 
-import weka.core.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import weka.core.tokenizers.Tokenizer;
 
 public class PhraseTokeniser extends Tokenizer {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8434873053681311753L;
+
+	Logger log = LoggerFactory.getLogger(getClass());
 
 	PhraseExtractor extractor;
 	List<String> phrases;
@@ -44,7 +51,7 @@ public class PhraseTokeniser extends Tokenizer {
 
 	@Override
 	public void tokenize(String s) {
-		extractor.extractPhrases(s);
+		phrases = extractor.extractPhrases(s);
 		list.addAll(phrases);
 	}
 

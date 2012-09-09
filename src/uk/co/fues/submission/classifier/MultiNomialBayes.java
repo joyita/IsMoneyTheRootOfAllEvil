@@ -1,148 +1,148 @@
 package uk.co.fues.submission.classifier;
 
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.co.fues.submission.classifier.nlp.PhraseTokeniser;
 import uk.co.fues.submission.util.constants.Directories;
 import uk.co.fues.submission.vocabulary.Sins;
 import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.bayes.NaiveBayesMultinomialUpdateable;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SerializationHelper;
+import weka.core.converters.ArffSaver;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class MultiNomialBayes {
 
-	private static final String FILENAME = "/MultiNomialBayes.model";
+	Logger log = LoggerFactory.getLogger(getClass());
+
+	private static final String FILENAME = "data/filteredData.arff";
 
 	Map<String, Integer> vocab;
 
-	private Instances trainingData;
 	private StringToWordVector filter;
 	private Classifier classifier;
 	private FastVector classValues;
 	private FastVector attributes;
+	private Instances data;
 
-	private Instances filteredData;
-	private Instances header;
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
 	public MultiNomialBayes() throws FileNotFoundException {
+		filter = new StringToWordVector();
+		filter.setStopwords(new File("en.txt"));
 	}
     
-    private boolean loadmodel() {
-	    Vector v;
+    private boolean loadClassifier() {
 		try {
-			v = (Vector) SerializationHelper.read(FILENAME);
-		    classifier = (Classifier) v.get(0);
-		    header = (Instances) v.get(1);
-		    if(classifier!=null) {
-		    	return true;
-		    }
+			buildTrainingData();
+			log.debug("loading classifier");
+			classifier = new NaiveBayesMultinomialUpdateable();
+		    BufferedReader reader = new BufferedReader(
+	                new FileReader(FILENAME));
+		    data = new Instances(reader);
+		    data.setClassIndex(1);
+		    reader.close();
+            filter.setInputFormat(data);
+
+            Instances filteredData = Filter.useFilter(data, filter);
+
+			classifier.buildClassifier(filteredData);
 		} catch (Exception e) {
-		    return false;
+		    log.error("", e);
+			return false;
 		}
 	    return false;
     }
 	
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	private void buildClassifier() {
-		this.filter = new StringToWordVector();
-		filter.setStopwords(new File("en.txt"));
-		filter.setTokenizer(new PhraseTokeniser());
-		this.classifier = new NaiveBayesMultinomialUpdateable();
-		this.classifier = new NaiveBayesMultinomialUpdateable();
-		// Create vector of attributes.
+	public void buildTrainingData() {
 		this.attributes = new FastVector(2);
-		// Add attribute for holding texts.
-		this.attributes.addElement(new Attribute("text", (FastVector) null));
-		// Add class attribute.
+		this.attributes.addElement(new Attribute("___text___", (FastVector) null));
 		this.classValues = new FastVector(8);
 
 		for (Sins sin : Sins.values()) {
-			classValues.addElement(sin.name());
-			System.out.println(sin.name());
-		}
+			classValues.addElement(sin.getClassName());
+ 		}
 
-		attributes.addElement(new Attribute("__class__", classValues));
-		// Create dataset with initial capacity of 100, and set index of class.
-		trainingData = new Instances("MessageClassificationProblem",
-				attributes, 200);
-		trainingData.setClassIndex(trainingData.numAttributes() - 1);
+		attributes.addElement(new Attribute("___class___", classValues));
+		Instances trainingData = new Instances("SiteClassifier",
+				attributes, 3000);
+		trainingData.setClassIndex(1);
 
 		try {
-			addData();
-			filter.setInputFormat(trainingData);
-			// Generate word counts from the training data.
-			filteredData = Filter.useFilter(trainingData, filter);
-			// save classifier.
-			classifier.buildClassifier(filteredData);
-			Vector v = new Vector();
-		    v.add(classifier);
-		    v.add(new Instances(filteredData, 0));
-		    SerializationHelper.write(FILENAME, v);
+//			int quickLimit = 0;
+
+			for (Sins si : Sins.values()) {
+				String sin = si.name();
+				File dir = new File(Directories.SIN_DIRECTORY.getLocation() + "/"
+						+ sin);
+				for (File f : dir.listFiles()) {
+					String data = FileUtils.readFileToString(f);
+					addData(trainingData, data, si.getClassName());
+//					quickLimit++;
+//					if(quickLimit>2)
+//					break;
+				}
+				break;
+			}
+		    
+		    ArffSaver saver = new ArffSaver();
+		    saver.setInstances(trainingData);
+		    saver.setFile(new File(FILENAME));
+		    saver.setDestination(new File(FILENAME));   // **not** necessary in 3.5.4 and later
+		    saver.writeBatch();
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}		
 	}
 
-	public void addData() throws IOException {
+	public void addData(Instances trainingData, String message, String classValue) throws IOException {
 
-		for (Sins si : Sins.values()) {
-			String sin = si.name();
-			File dir = new File(Directories.SIN_DIRECTORY.getLocation() + "/"
-					+ sin);
-			for (File f : dir.listFiles()) {
-				String data = FileUtils.readFileToString(f);
-				Instance instance = getInstance(data, trainingData);
-				instance.setClassValue(sin);
-				trainingData.add(instance);
-				return;
-			}
-		}
+        message = message.toLowerCase();
+        classValue = classValue.toLowerCase();
+        // Make message into instance.
+        Instance instance = getInstance(message, trainingData);
+        // Set class value for instance.
+        instance.setClassValue(classValue);
+        // Add instance to training data.
+        trainingData.add(instance);
+		
 
 	}
 
-	public double[] classifyMessage(String message) throws Exception {
-		if(!loadmodel()) {
-			buildClassifier();
-		}
-		message = message.toLowerCase();
+	public double[] classifySite(String text) throws Exception {
+    	if(classifier==null) {
+    		loadClassifier();
+    	}
+		
+		text = text.toLowerCase();
 
-		// Check whether classifier has been built.
-		if (trainingData.numInstances() == 0) {
-			throw new Exception("No classifier available.");
-		}
-		Instances testset = trainingData.stringFreeStructure();
-		Instance testInstance = getInstance(message, testset);
 
-		// Filter instance.
-		// filter.setInputFormat(testset);
+		Instances testset = data.stringFreeStructure();
+		Instance testInstance = getInstance(text, testset);
+		filter.setTokenizer(new PhraseTokeniser());
+
 		filter.input(testInstance);
+		filter.batchFinished();
 		Instance filteredInstance = filter.output();
 		double[] retval = classifier.distributionForInstance(filteredInstance);
 		for (double d : retval) {
-			System.out.print(d + "  ");
+			log.debug(d + "  ");
 		}
-		System.out.println("--");
+		log.debug("~");
 		return retval;
 
 	}
@@ -151,12 +151,11 @@ public class MultiNomialBayes {
 		// Create instance of length two.
 		Instance instance = new Instance(2);
 		// Set value for message attribute
-		Attribute messageAtt = data.attribute("text");
+		Attribute messageAtt = data.attribute("___text___");
 		instance.setValue(messageAtt, messageAtt.addStringValue(text));
 		// Give instance access to attribute information from the dataset.
 		instance.setDataset(data);
 		return instance;
 	}
 
-	static String a = "";
 }

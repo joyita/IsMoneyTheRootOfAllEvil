@@ -43,7 +43,7 @@ public class Builder {
 				String data = parser.parseURL(url);
 				String cleansed = DataCleansing.clean(data);
 				if(DataCleansing.include(cleansed)) {
-					File file = new File(Directories.SIN_DIRECTORY.getLocation() + "/" + sin_.name() + "/" + createFileNameFromURL(url));
+					File file = new File(Directories.SIN_UNPARSED_DIRECTORY.getLocation() + "/" + sin_.name() + "/" + createFileNameFromURL(url));
 					try {
 					FileUtils.writeStringToFile(file, cleansed);
 					} catch (Exception e) {

@@ -18,6 +18,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 import org.commoncrawl.hadoop.mapred.ArcInputFormat;
+import org.slf4j.LoggerFactory;
 
 import uk.co.fues.submission.mapper.SinMapper;
 import uk.co.fues.submission.reducer.RankReducer;
@@ -26,7 +27,7 @@ import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 
 public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
-  private static final Logger LOG = Logger.getLogger(MoneyIsTheRootOfAllEvil.class);
+	org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 
 
@@ -80,7 +81,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     // Read in any additional config parameters.
     if (configFile != null) {
-      LOG.info("adding config parameters from '"+ configFile + "'");
+      log.info("adding config parameters from '"+ configFile + "'");
       this.getConf().addResource(configFile);
     }
 
@@ -90,12 +91,12 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
     job.setJarByClass(MoneyIsTheRootOfAllEvil.class);
 
     // Scan the provided input path for ARC files.
-    LOG.info("setting input path to '"+ inputPath + "'");
+    log.info("setting input path to '"+ inputPath + "'");
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileInputFormat.setInputPathFilter(job, SampleFilter.class);
 
     // Delete the output path directory if it already exists.
-    LOG.info("clearing the  output path at '" + outputPath + "'");
+    log.info("clearing the  output path at '" + outputPath + "'");
 
     FileSystem fs = FileSystem.get(new URI(outputPath), job);
 
@@ -103,7 +104,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
       fs.delete(new Path(outputPath), true);
 
     // Set the path where final output 'part' files will be saved.
-    LOG.info("setting output path to '" + outputPath + "'");
+    log.info("setting output path to '" + outputPath + "'");
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
     FileOutputFormat.setCompressOutput(job, false);
 
