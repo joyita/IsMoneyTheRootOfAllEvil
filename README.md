@@ -1,1 +1,1 @@
-<img src="https://dl.dropbox.com/u/2022975/site/initial_finding.jpg" height="42" width="42" />
+<iframe src="http://dl.dropbox.com/u/2022975/site/fues/MoneyExperiment.html" height="500" width="1000" />
