@@ -236,10 +236,28 @@ public class GzipCompressorInputStream extends CompressorInputStream {
         if (stoppedForEndOfMember || endOfStream) {
             return -1;
         }
+        
+        try {
+			if(in.available()<0) {
+				return -1;
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}        
+		
 
         int size = 0;
 
         while (len > 0) {
+            try {
+    			if(in.available()<0) {
+    				return -1;
+    			}
+    		} catch (IOException e1) {
+    			e1.printStackTrace();
+    			return -1;
+    		}   
+            
             if (inf.needsInput()) {
                 // Remember the current position because we may need to
                 // rewind after reading too much input.
@@ -248,8 +266,7 @@ public class GzipCompressorInputStream extends CompressorInputStream {
                 try {
 					bufUsed = in.read(buf);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					return -1;
 				}
                 if (bufUsed == -1) {
                     return -1;

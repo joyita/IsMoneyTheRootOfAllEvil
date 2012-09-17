@@ -4,7 +4,7 @@ public enum Directories {
 
 	
 	SIN_DIRECTORY("/sins/training/parsed"),
-	SIN_UNPARSED_DIRECTORY("/sins/training");
+	SIN_UNPARSED_DIRECTORY("/sins/training/unparsed");
 	
 	String location;
 	Directories(String location) {

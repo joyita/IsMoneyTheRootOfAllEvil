@@ -1,13 +1,14 @@
 package uk.co.fues.submission.mapper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
@@ -16,14 +17,12 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 import org.commoncrawl.hadoop.mapred.ArcRecord;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import uk.co.fues.submission.MoneyIsTheRootOfAllEvil;
 import uk.co.fues.submission.classifier.MultiNomialBayes;
 import uk.co.fues.submission.trainer.parse.DataCleansing;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 import uk.co.fues.submission.vocabulary.Sins;
-import uk.co.fues.submission.vocabulary.Money;
 
 public class SinMapper extends MapReduceBase implements
 		Mapper<Text, ArcRecord, DoubleWritable, DoubleArrayWritable> {
@@ -48,8 +47,6 @@ public class SinMapper extends MapReduceBase implements
               return;
             }
 
-            // just curious how many of each content type we've seen
-
             // ensure sample instances have enough memory to parse HTML
             if (value.getContentLength() > (5 * 1024 * 1024)) {
               return;
@@ -62,7 +59,7 @@ public class SinMapper extends MapReduceBase implements
               return;
             }
 
-            Elements mf = doc.select("[itemtype~=schema.org]");			// Get the text content as a string.
+            //Elements mf = doc.select("[itemtype~=schema.org]");			// Get the text content as a string.
 			String pageText = doc.text();
 			String cleansed = DataCleansing.clean(pageText);
 			if(!DataCleansing.include(cleansed)) {
@@ -71,6 +68,7 @@ public class SinMapper extends MapReduceBase implements
 
 //			output.collect(new DoubleWritable((int)(getIDF(pageText, Money.MONEY.getVocab())*100)),
 //					getSinVector(pageText));
+			FileUtils.writeStringToFile(new File("/tempcollect"), (getMoneyness(cleansed) + " : " + getClassiferSinVector(cleansed) + "  /n"), true);
 			output.collect(getMoneyness(cleansed),
 					getClassiferSinVector(cleansed));
 		} catch (Exception ex) {
@@ -97,14 +95,14 @@ public class SinMapper extends MapReduceBase implements
 		double[] results = classifer.classifySite(text);
 		DoubleWritable[] init = new DoubleWritable[7];
 		for(int i = 0; i<7; i++) {
-			init[i] = new DoubleWritable(results[i]*10); //multiply up to avoid underflow
+			init[i] = new DoubleWritable(results[i]*10000000); //multiply up to avoid underflow
 		}
 		return new DoubleArrayWritable(init);
 	}
 	
 	private DoubleWritable getMoneyness(String text) throws Exception {
 		double[] results = classifer.classifySite(text);
-		return new DoubleWritable((int) (results[7]*10));
+		return new DoubleWritable((int) (results[7]*10000000));
 	}
 	
 	@SuppressWarnings("unused")

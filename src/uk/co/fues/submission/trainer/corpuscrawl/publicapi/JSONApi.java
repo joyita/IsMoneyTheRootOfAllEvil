@@ -48,7 +48,7 @@ public class JSONApi {
 			httpclient.getCredentialsProvider().setCredentials(
 					new AuthScope(targetHost.getHostName(),
 							targetHost.getPort()),
-					new UsernamePasswordCredentials("*", "*"));
+					new UsernamePasswordCredentials(username, password));
 			// Create AuthCache instance
 			setParams(httpclient);
 			AuthCache authCache = new BasicAuthCache();
@@ -124,7 +124,6 @@ public class JSONApi {
 		return json;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void setParams(DefaultHttpClient httpclient) {
 		HttpParams params = new BasicHttpParams();
 		params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);

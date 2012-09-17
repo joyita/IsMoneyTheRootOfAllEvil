@@ -41,6 +41,7 @@ public class MultiNomialBayes {
 	public MultiNomialBayes() throws FileNotFoundException {
 		filter = new StringToWordVector();
 		filter.setStopwords(new File("en.txt"));
+		buildTrainingData();
 	}
     
     private boolean loadClassifier() {
@@ -93,7 +94,7 @@ public class MultiNomialBayes {
 //					if(quickLimit>2)
 //					break;
 				}
-				break;
+//				break;
 			}
 		    
 		    ArffSaver saver = new ArffSaver();

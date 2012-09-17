@@ -1,10 +1,16 @@
 package uk.co.fues.submission;
 
 // Java classes
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
@@ -16,7 +22,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.log4j.Logger;
 import org.commoncrawl.hadoop.mapred.ArcInputFormat;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +33,7 @@ import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
 	org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
+	boolean getPaths = false;
 
 
   public static class SampleFilter
@@ -73,11 +78,12 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     if (args.length >= 2)
       configFile = args[1];
+    
+//    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247*";
+//    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_*";
+    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690147253/134170819*";
 
-    // For this example, only look at a single text file.
-   
-    //String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247*";
-    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_*";
+    
 
     // Read in any additional config parameters.
     if (configFile != null) {
@@ -87,6 +93,12 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
     // Creates a new job configuration for this Hadoop job.
     JobConf job = new JobConf(this.getConf());
+    
+    if(getPaths) {
+        FileSystem fs0 = FileSystem.get(new URI("s3n://aws-publicdatasets"), job);
+        List<String> paths = new ArrayList<String>();
+        getValidArcFiles(paths, fs0);
+    }
 
     job.setJarByClass(MoneyIsTheRootOfAllEvil.class);
 
@@ -127,6 +139,26 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
       return 0;
     else
       return 1;
+  }
+  
+  private void getValidArcFiles(List<String> paths, FileSystem fs0) throws IOException {
+	    String baseInputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment";
+	    for (FileStatus fileStatus : fs0.globStatus(new Path("/common-crawl/parse-output/valid_segments/[0-9]*"))) { 
+	        String[] parts = fileStatus.getPath().toString().split("/");
+	        String segmentInputPath = baseInputPath + "/" + parts[parts.length-1] + "/";
+	        log.info("adding segment path '" + segmentInputPath + "'");
+	        
+	        for (FileStatus fileStatus2 : fs0.globStatus(new Path(segmentInputPath + "*"))) {
+	            String[] parts2 = fileStatus2.getPath().toString().split("/");
+	            String fileInputPath = segmentInputPath + parts2[parts2.length-1];
+	            log.info(fileInputPath + "'");
+	            if(fileInputPath.contains(".arc.gz")) {
+	                paths.add(fileInputPath);      	  
+	            }
+	        }
+	      }
+	      
+	      FileUtils.writeLines(new File("resources/job/inputPaths.txt"), paths);
   }
 
   /**

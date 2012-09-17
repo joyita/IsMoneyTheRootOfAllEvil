@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -16,8 +17,13 @@ public class JSONConverter {
 		File f = new File("MoneyIsTheRootOfAllEvil/part-00000");
 		try {
 			List<String> lines = IOUtils.readLines(new FileInputStream(f));
-			JSONConverter runner = new JSONConverter();
-			System.out.println(runner.getCollatedJSON(runner.getSins(), lines));
+			List<List<Double>> sins = getSins();
+			fillSins(sins, lines);
+			int i = 6;
+			String json = "[";
+			String ind = getCollatedJSON(stripSins(sins, i));
+			json = ind + "]";
+			System.out.println(ind);
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -26,81 +32,100 @@ public class JSONConverter {
 		}
 
 	}
+	
+	private static List<List<Double>> stripSins(List<List<Double>> sins, int chosenSin) {
+		List<List<Double>> ret = new ArrayList<List<Double>>(sins);
+		for(int i=0;i<ret.size();i++) {
+			List<Double> sinSeries = ret.get(i);
+			if(i!=chosenSin) {
+			for(int j=0;j<sinSeries.size();j++) {
+					sinSeries.set(j, 0.0);
+				}
+			}
+		}
+		return ret;
+	}
+	
+	private static void constructTenPointAverages(List<List<Double>> dataset) {
+		// get the number of points
+		int dataPoints = dataset.get(0).size();
+	}
 
-	private List<List<Double>> getSins() {
+	private static List<List<Double>> getSins() {
 		List<List<Double>> sins = new ArrayList<List<Double>>();
 		for (int i = 0; i < 7; i++) {
 			sins.add(new ArrayList<Double>());
 		}
 		return sins;
 	}
+
 	
-	private void fillSins(List<List<Double>> sins, List<String> lines) {
+	private static void fillSins(List<List<Double>> dataset, List<String> lines) {
 		for (String record : lines) {
-			String data = record.split("\t")[1];
-			String[] datums = data.split(",");
-			for (int i = 0; i < datums.length; i++) {
-				sins.get(i).add(Double.parseDouble(datums[i]));
+			String moneynessAverages = record.split("\t")[1];
+			String[] sin_score = moneynessAverages.split(",");
+			for (int i = 0; i < sin_score.length; i++) {
+				dataset.get(i).add(Double.parseDouble(sin_score[i]));
 			}
 		}
-		
+
 	}
-	
-	
-	private void fillSpecificSin(List<List<Double>> sins, List<String> lines, int index) {
+
+	private static void fillSpecificSin(List<List<Double>> sins, List<String> lines,
+			int index) {
 		for (String record : lines) {
 			String data = record.split("\t")[1];
 			String[] datums = data.split(",");
 			for (int i = 0; i < datums.length; i++) {
-				double fillVal = Double.parseDouble(datums[i]);
-				if(i!=index) {
-					fillVal = 0.0;
+				double fillVal = 0.0;
+				if (i == index) {
+					fillVal = Double.parseDouble(datums[i]);
 				}
 				sins.get(i).add(fillVal);
 			}
 		}
 		
+
 	}
-	
-	private String getIndividualJSONs(List<List<Double>> sins, List<String> lines) {
+
+	private static String getIndividualJSONs(List<List<Double>> sins) {
 		int sins_length = sins.size();
 		String json = "[";
 		for (int sinIndex = 0; sinIndex < sins_length; sinIndex++) {
-		fillSpecificSin(sins, lines, sinIndex);
-		
-		json = json + "[";
-		for (int sinIndex2 = 0; sinIndex2 < sins_length; sinIndex2++) {
-			List<Double> sin = sins.get(sinIndex2);
-			String entry = "[";
-			int xIncrement = 0;
-			int datums_length = sin.size();
-			for (int datumIndex = 0; datumIndex < datums_length; datumIndex++) {
-				String datum = "{\"x\":" + xIncrement + ",\"y\":" + sin.get(datumIndex)
-						* 80000 + ",\"colour\":\"" + getSinColour(sinIndex2) + "\"}";
-				if (datumIndex != datums_length - 1) {
-					datum = datum + ",";
+			//fillSpecificSin(sins, lines, sinIndex);
+
+			for (int sinIndex2 = 0; sinIndex2 < sins_length; sinIndex2++) {
+				List<Double> sin = sins.get(sinIndex2);
+				String entry = "[";
+				int xIncrement = 0;
+				int datums_length = sin.size();
+				for (int datumIndex = 0; datumIndex < datums_length; datumIndex++) {
+					String datum = "{\"x\":" + xIncrement + ",\"y\":"
+							+ sin.get(datumIndex) * 80000 + ",\"colour\":\""
+							+ getSinColour(sinIndex2) + "\"}";
+					if (datumIndex != datums_length - 1) {
+						datum = datum + ",";
+					}
+					entry = entry + datum;
+					xIncrement = xIncrement + 1;
 				}
-				entry = entry + datum;
-				xIncrement = xIncrement + 1;
+				json = json + entry + "]";
+				if (sinIndex2 != sins_length - 1) {
+					json = json + ",";
+				}
+				xIncrement = 0;
+
 			}
-			json = json + entry + "]";
-			if (sinIndex2 != sins_length - 1) {
+			json = json + "]";
+			if (sinIndex != sins_length - 1) {
 				json = json + ",";
 			}
-
 		}
-		json = json + "]";
-		if (sinIndex != sins_length - 1) {
-			json = json + ",";
-		}
-		}
-		json = json + "]";
 		return json;
 	}
 
-	private String getCollatedJSON(List<List<Double>> sins, List<String> lines) {
-		fillSins(sins, lines);
-		
+	private static String getCollatedJSON(List<List<Double>> sins) {
+
 		String json = "[";
 		int sins_length = sins.size();
 		for (int sinIndex = 0; sinIndex < sins_length; sinIndex++) {
@@ -109,8 +134,9 @@ public class JSONConverter {
 			int xIncrement = 0;
 			int datums_length = sin.size();
 			for (int datumIndex = 0; datumIndex < datums_length; datumIndex++) {
-				String datum = "{\"x\":" + xIncrement + ",\"y\":" + sin.get(datumIndex)
-						* 80000 + ",\"colour\":\"" + getSinColour(sinIndex) + "\"}";
+				String datum = "{\"x\":" + xIncrement + ",\"y\":"
+						+ sin.get(datumIndex) * 80000 + ",\"colour\":\""
+						+ getSinColour(sinIndex) + "\"}";
 				if (datumIndex != datums_length - 1) {
 					datum = datum + ",";
 				}

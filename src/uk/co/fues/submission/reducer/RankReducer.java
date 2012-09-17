@@ -11,12 +11,17 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 
 public class RankReducer extends MapReduceBase
   implements Reducer<DoubleWritable, DoubleArrayWritable, DoubleWritable, Text> {
-  public void reduce(DoubleWritable key, Iterator<DoubleArrayWritable> values, OutputCollector<DoubleWritable, Text> out, Reporter reporter)
+
+	Logger log = LoggerFactory.getLogger(getClass());
+	
+	public void reduce(DoubleWritable key, Iterator<DoubleArrayWritable> values, OutputCollector<DoubleWritable, Text> out, Reporter reporter)
 	      throws IOException {
 	double[] sinScores = new double[7];
 	int total = 0;
@@ -24,6 +29,7 @@ public class RankReducer extends MapReduceBase
 		DoubleArrayWritable sinIndex = values.next();
 		Writable[] sins = sinIndex.get();
 		for(int i=0;i<7;i++) {
+			log.debug(sinScores[i] + " " );
 			sinScores[i]+=((DoubleWritable) sins[i]).get();			
 		}
 		total++;
