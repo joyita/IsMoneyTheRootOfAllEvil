@@ -29,7 +29,6 @@ import uk.co.fues.submission.mapper.SinMapper;
 import uk.co.fues.submission.reducer.RankReducer;
 import uk.co.fues.submission.util.datastructure.DoubleArrayWritable;
 
-
 public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
 
 	org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
@@ -81,7 +80,7 @@ public class MoneyIsTheRootOfAllEvil extends Configured implements Tool {
     
 //    String inputPath   = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247*";
 //    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690163490/1341782247571_*";
-    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690147253/134170819*";
+    String inputPath = "s3n://aws-publicdatasets/common-crawl/parse-output/segment/1341690153900/13417178*";
 
     
 
